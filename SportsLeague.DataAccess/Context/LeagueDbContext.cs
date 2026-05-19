@@ -21,6 +21,7 @@ public class LeagueDbContext : DbContext
     public DbSet<MatchResult> MatchResults => Set<MatchResult>(); // NUEVO
     public DbSet<Goal> Goals => Set<Goal>(); // NUEVO
     public DbSet<Card> Cards => Set<Card>(); // NUEVO
+    public DbSet<MatchLineup> MatchLineups => Set<MatchLineup>(); // NUEVO
 
 
 
@@ -300,6 +301,23 @@ public class LeagueDbContext : DbContext
                   .WithMany(p => p.Cards)
                   .HasForeignKey(c => c.PlayerId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+        // — MatchLineup Configuration —
+        modelBuilder.Entity<MatchLineup>(entity =>
+        {
+            entity.HasIndex(ml => new { ml.MatchId, ml.PlayerId })
+                 .IsUnique();
+            entity.HasOne(ml => ml.Match)
+                 .WithMany()
+                 .HasForeignKey(ml => ml.MatchId)
+                 .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(ml => ml.Player)
+                 .WithMany()
+                 .HasForeignKey(ml => ml.PlayerId)
+                 .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(ml => ml.Position)
+                 .HasMaxLength(10)
+                 .IsRequired();
         });
     }
 }
